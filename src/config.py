@@ -7,6 +7,7 @@ class Settings(BaseSettings):
         env_file='.env'
     )
     TELEGRAM_TOKEN: str = ''
+    ADMIN_CHAT_ID: str = ''
 
 
 settings = Settings()
