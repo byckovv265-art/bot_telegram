@@ -29,6 +29,15 @@ async def start_message(message):
         await bot.send_message(message.chat.id, 'ヾ(•ω•`)o', reply_markup=markup)
 
 
+@bot.message_handler(commands=['help'])
+async def start_message(message):
+    print("attempt to start: " + str(message.chat.id))
+    await bot.reply_to(message, 'Привет, вот ващ тех.спец, иди к нему')
+    markup = types.InlineKeyboardMarkup()
+    #markup.add(types.InlineKeyboardButton('вот ващ тех.спец, иди к нему', callback_data='add_schedule'))
+    await bot.send_message(message.chat.id, '@Vadik6388', reply_markup=markup)
+
+
 @bot.message_handler(func=lambda message: True)
 async def echo_message(message):
     print(message, message.chat.id)
