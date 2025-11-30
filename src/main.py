@@ -4,9 +4,11 @@ from telebot.async_telebot import AsyncTeleBot
 from telebot import types
 
 from config import settings
+from datetimer import Date
 
 token = settings.TELEGRAM_TOKEN
-admin = settings.ADMIN_CHAT_ID
+admin = settings.ADMIN_CHAT_ID.split(',')
+
 groups = {
     "9ПЗ4.21": -4875808929, 
     "9ЗБ3.22": -4798064565, 
@@ -16,13 +18,17 @@ bot_state = {
     "group_name": "",
     "is_waiting_for_schedule": False
 }
+
+num_pary = '>'
+removed_symbols = '. -'
+
 bot = AsyncTeleBot(token)
 
 
 @bot.message_handler(commands=['start','Start'])
 async def start_message(message):
     print("attempt to start: " + str(message.chat.id))
-    if str(admin) == str(message.chat.id):
+    if str(message.chat.id) in admin:
         await bot.reply_to(message, 'Привет')
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Добавить рвсписание!', callback_data='add_schedule'))
@@ -40,19 +46,31 @@ async def start_message(message):
 
 @bot.message_handler(func=lambda message: True)
 async def echo_message(message):
-    print(message, message.chat.id)
-    if str(admin) == str(message.chat.id):
+    print(message.text, message.chat.id)
+    if str(message.chat.id) in admin:
         await bot.send_message(message.chat.id, 'ヾ(•ω•`)o')
+
+        text = message.text.split('>')
+        date = text[0]
+        print(date)
+        print(text)
+        weekday = Date(date)
+
+        format_message = f'📝 Расписание на {weekday} ({date})'
+        for i in text[1:]:
+            i.replace('\n', '')
+            format_message += '\n' + '> '+ i
+
         if bot_state["is_waiting_for_schedule"]:
             bot_state["is_waiting_for_schedule"] = False
             await bot.reply_to(message, "вот такое расписание пользователь скинул: " + message.text) 
             group_name2 = bot_state["group_name"]
-            await bot.send_message(groups[group_name2], message.text)
+            await bot.send_message(groups[group_name2], format_message)
 
 
 @bot.callback_query_handler(func=lambda callback: True)
 async def callback_message(callback):
-    if str(admin) == str(callback.message.chat.id):
+    if str(callback.message.chat.id) in admin:
         if callback.data == 'add_schedule':
             await bot.send_message(callback.message.chat.id, 'Ну ты походу бивень .. 🐘')
             markup = types.InlineKeyboardMarkup()
