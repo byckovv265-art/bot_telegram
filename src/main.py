@@ -42,6 +42,11 @@ async def start_message(message):
     markup = types.InlineKeyboardMarkup()
     #markup.add(types.InlineKeyboardButton('вот ващ тех.спец, иди к нему', callback_data='add_schedule'))
     await bot.send_message(message.chat.id, '@Vadik6388', reply_markup=markup)
+    if str(message.chat.id) in admin:
+        await bot.send_message(message.chat.id, 'Документация:')
+        with open("files/docs.txt", "rb") as misc:
+            f=misc.read()
+            await bot.send_document(message.chat.id, f)
 
 
 @bot.message_handler(func=lambda message: True)
@@ -50,7 +55,7 @@ async def echo_message(message):
     if str(message.chat.id) in admin:
         await bot.send_message(message.chat.id, 'ヾ(•ω•`)o')
 
-        text = message.text.split('>')
+        text = message.text.replace('\n', '').split('>')
         date = text[0]
         print(date)
         print(text)
@@ -58,7 +63,7 @@ async def echo_message(message):
 
         format_message = f'📝 Расписание на {weekday} ({date})'
         for i in text[1:]:
-            i.replace('\n', '')
+            # i.replace('\n', '')
             format_message += '\n' + '> '+ i
 
         if bot_state["is_waiting_for_schedule"]:
